@@ -14,8 +14,8 @@ class CartItems {
   });
 }
 
-class cart with ChangeNotifier {
-  Map<String, CartItems> _items;
+class Cart with ChangeNotifier {
+  Map<String, CartItems> _items = {};
 
   Map<String, CartItems> get items {
     return {..._items};
@@ -48,5 +48,17 @@ class cart with ChangeNotifier {
       );
     }
     notifyListeners();
+  }
+
+  int get leng {
+    return _items.length;
+  }
+
+  double get getAmount {
+    var total = 0.0;
+    _items.forEach((key, cartItem) {
+      total += cartItem.price * cartItem.quantity;
+    });
+    return total;
   }
 }
