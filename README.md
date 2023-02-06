@@ -1,4 +1,4 @@
-# shop_app_2
+# Your Store
 
 A new Flutter project.
 
