@@ -33,10 +33,12 @@ class CartItems extends StatelessWidget {
           color: Colors.white,
         ),
         alignment: Alignment.centerRight,
-        padding: EdgeInsets.only(right: 20),
-        margin: EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 4,
+        padding: EdgeInsetsDirectional.only(end: 20),
+        margin: EdgeInsetsDirectional.only(
+          start: 15,
+          end: 15,
+          top: 4,
+          bottom: 4,
         ),
       ),
       direction: DismissDirection.endToStart,
@@ -67,16 +69,18 @@ class CartItems extends StatelessWidget {
         );
       },
       child: Card(
-        margin: EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 4,
+        margin: EdgeInsetsDirectional.only(
+          start: 15,
+          end: 15,
+          top: 4,
+          bottom: 4,
         ),
         child: Padding(
-          padding: EdgeInsets.all(8),
+          padding: EdgeInsetsDirectional.all(8),
           child: ListTile(
             leading: CircleAvatar(
               child: Padding(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsetsDirectional.all(4),
                 child: FittedBox(
                   child: Text('\$$price'),
                 ),

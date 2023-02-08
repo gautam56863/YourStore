@@ -45,7 +45,7 @@ class ProductDetail extends StatelessWidget {
                 width: 10,
               ),
               Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsetsDirectional.only(start: 10, end: 10),
                   width: double.infinity,
                   child: Text(
                     loadedProduct.description,

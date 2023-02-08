@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:badges/badges.dart' as badges;
 
 import '../widget/badge.dart';
 import '../provider/cart.dart';
@@ -48,9 +49,10 @@ class _ProductsOverviewState extends State<ProductsOverview> {
             ],
           ),
           Consumer<Cart>(
-            builder: (_, cartProd, ch) => Badge(
+            builder: (_, cartProd, ch) => badges.Badge(
               child: ch,
-              value: cartProd.leng.toString(),
+              badgeContent: Text('${cartProd.leng.toString()}'),
+              position: badges.BadgePosition.topEnd(top: 0, end: 0),
             ),
             child: IconButton(
               icon: Icon(Icons.shopping_cart),

@@ -25,7 +25,7 @@ class UserProducts extends StatelessWidget {
       ),
       drawer: AppDrawer(),
       body: Padding(
-        padding: EdgeInsets.all(8),
+        padding: EdgeInsetsDirectional.all(8),
         child: ListView.builder(
           itemCount: productsData.items.length,
           itemBuilder: (ctx, i) => Column(
