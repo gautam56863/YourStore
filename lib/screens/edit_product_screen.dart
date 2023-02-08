@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../provider/product.dart';
+import '../provider/products.dart';
 
 class EditProduct extends StatefulWidget {
   static const routeName = '/edit-product';
@@ -13,6 +16,13 @@ class _EditProductState extends State<EditProduct> {
   final _imgUrlController = TextEditingController();
   final _imgUrlFocusNode = FocusNode();
   final _form = GlobalKey<FormState>();
+  bool _isInit = true;
+  var _inItValues = {
+    'title': '',
+    'price': '',
+    'description': '',
+    'imgUrl': '',
+  };
   var _edittedProduct = Product(
     id: null,
     title: '',
@@ -20,6 +30,28 @@ class _EditProductState extends State<EditProduct> {
     price: 0,
     imageUrl: '',
   );
+
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      final prodId = ModalRoute.of(context).settings.arguments as String;
+
+      if (prodId != null) {
+        _edittedProduct =
+            Provider.of<Products>(context, listen: false).findbyId(prodId);
+        _inItValues = {
+          'title': _edittedProduct.title,
+          'price': _edittedProduct.price.toString(),
+          'description': _edittedProduct.description,
+          // 'imgUrl': _edittedProduct.imageUrl,
+          'imgUrl': '',
+        };
+        _imgUrlController.text = _edittedProduct.imageUrl;
+      }
+    }
+    _isInit = false;
+    super.didChangeDependencies();
+  }
 
   @override
   void initState() {
@@ -39,6 +71,11 @@ class _EditProductState extends State<EditProduct> {
 
   void _updateImageUrl() {
     if (!_imgUrlFocusNode.hasFocus) {
+      if ((!_imgUrlController.text.startsWith('http') &&
+              !_imgUrlController.text.startsWith('https')) ||
+          (!_imgUrlController.text.endsWith('.jpg') &&
+              !_imgUrlController.text.endsWith('.png') &&
+              !_imgUrlController.text.endsWith('.jpeg'))) return;
       setState(() {});
     }
   }
@@ -49,11 +86,13 @@ class _EditProductState extends State<EditProduct> {
       return;
     }
     _form.currentState.save();
-    print(_edittedProduct.title);
-    print(_edittedProduct.price);
-    print(_edittedProduct.description);
-    print(_edittedProduct.imageUrl);
-    print(_edittedProduct.isFavorite);
+    if (_edittedProduct.id != null) {
+      Provider.of<Products>(context, listen: false)
+          .updateProduct(_edittedProduct.id, _edittedProduct);
+    } else {
+      Provider.of<Products>(context, listen: false).addProduct(_edittedProduct);
+    }
+    Navigator.of(context).pop();
   }
 
   @override
@@ -77,6 +116,7 @@ class _EditProductState extends State<EditProduct> {
           child: ListView(
             children: [
               TextFormField(
+                initialValue: _inItValues['title'],
                 decoration: InputDecoration(labelText: 'Title'),
                 textInputAction: TextInputAction.next,
                 onFieldSubmitted: (_) {
@@ -88,7 +128,8 @@ class _EditProductState extends State<EditProduct> {
                 },
                 onSaved: (value) {
                   _edittedProduct = Product(
-                    id: null,
+                    id: _edittedProduct.id,
+                    isFavorite: _edittedProduct.isFavorite,
                     title: value,
                     description: _edittedProduct.description,
                     price: _edittedProduct.price,
@@ -97,6 +138,7 @@ class _EditProductState extends State<EditProduct> {
                 },
               ),
               TextFormField(
+                initialValue: _inItValues['price'],
                 decoration: InputDecoration(labelText: 'Price'),
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
@@ -116,7 +158,8 @@ class _EditProductState extends State<EditProduct> {
                 },
                 onSaved: (value) {
                   _edittedProduct = Product(
-                    id: null,
+                    id: _edittedProduct.id,
+                    isFavorite: _edittedProduct.isFavorite,
                     title: _edittedProduct.title,
                     description: _edittedProduct.description,
                     price: double.parse(value),
@@ -125,6 +168,7 @@ class _EditProductState extends State<EditProduct> {
                 },
               ),
               TextFormField(
+                initialValue: _inItValues['description'],
                 decoration: InputDecoration(labelText: 'Description'),
                 maxLines: 3,
                 keyboardType: TextInputType.multiline,
@@ -137,7 +181,8 @@ class _EditProductState extends State<EditProduct> {
                 },
                 onSaved: (value) {
                   _edittedProduct = Product(
-                    id: null,
+                    id: _edittedProduct.id,
+                    isFavorite: _edittedProduct.isFavorite,
                     title: _edittedProduct.title,
                     description: value,
                     price: _edittedProduct.price,
@@ -149,7 +194,7 @@ class _EditProductState extends State<EditProduct> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Container(
-                    padding: EdgeInsetsDirectional.all(5.0),
+                    // padding: EdgeInsetsDirectional.all(5.0),
                     width: 100,
                     height: 100,
                     margin: const EdgeInsetsDirectional.only(
@@ -182,9 +227,24 @@ class _EditProductState extends State<EditProduct> {
                       onFieldSubmitted: (_) {
                         _saveForm();
                       },
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Please enter an Image URL.';
+                        }
+                        if (!value.startsWith('http') &&
+                            !value.startsWith('https'))
+                          return 'Please enter a Valid URL.';
+
+                        if (!value.endsWith('.jpg') &&
+                            !value.endsWith('.png') &&
+                            !value.endsWith('.jpeg'))
+                          return 'Please enter a Valid image URL.';
+                        return null;
+                      },
                       onSaved: (value) {
                         _edittedProduct = Product(
-                          id: null,
+                          id: _edittedProduct.id,
+                          isFavorite: _edittedProduct.isFavorite,
                           title: _edittedProduct.title,
                           description: _edittedProduct.description,
                           price: _edittedProduct.price,
