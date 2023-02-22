@@ -44,10 +44,11 @@ class Products with ChangeNotifier {
     return [..._items];
   }
 
-  Future<void> addProduct(Product product) {
+  Future<void> addProduct(Product product) async {
     final url = Uri.parse(
         'https://yourstore-1469f-default-rtdb.firebaseio.com/products.json');
-    return http
+    try{
+    final response=await http
         .post(
       url,
       body: json.encode({
@@ -57,9 +58,7 @@ class Products with ChangeNotifier {
         'isFavorite': product.isFavorite,
         'imgUrl': product.imageUrl,
       }),
-    )
-        .then(
-      (response) {
+    );
         final newProd = Product(
           id: json.decode(response.body)['name'],
           description: product.description,
@@ -69,8 +68,13 @@ class Products with ChangeNotifier {
         );
         _items.add(newProd);
         notifyListeners();
-      },
-    );
+    }
+    catch(error)
+    {
+      print(error);
+      throw error;
+    }
+      
   }
 
   List<Product> get favoriteItems {
