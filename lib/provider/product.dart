@@ -25,7 +25,7 @@ class Product with ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleFavoriteStatus() async {
+  Future<void> toggleFavoriteStatus() async {
     final storeFavorites = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
