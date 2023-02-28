@@ -40,17 +40,25 @@ class Products with ChangeNotifier {
     //       'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
     // ),
   ];
+  final String authToken;
+  final String userId;
+  Products(this.authToken, this.userId, this._items);
 
   List<Product> get items {
     return [..._items];
   }
 
   Future<void> fetchAndSetProducts() async {
-    final url = Uri.parse(
-        'https://yourstore-1469f-default-rtdb.firebaseio.com/products.json');
+    var url = Uri.parse(
+        'https://yourstore-1469f-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      if (extractedData == null) return;
+      url = Uri.parse(
+          'https://yourstore-1469f-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$authToken');
+      final favResponse = await http.get(url);
+      final favData = json.decode(favResponse.body);
       final List<Product> loadedProduct = [];
       extractedData.forEach((prodId, prodData) {
         loadedProduct.add(
@@ -59,7 +67,7 @@ class Products with ChangeNotifier {
             title: prodData['title'],
             description: prodData['description'],
             price: prodData['price'],
-            isFavorite: prodData['isFavorite'],
+            isFavorite: favData == null ? false : favData[prodId] ?? false,
             imageUrl: prodData['imgUrl'],
           ),
         );
@@ -73,7 +81,7 @@ class Products with ChangeNotifier {
 
   Future<void> addProduct(Product product) async {
     final url = Uri.parse(
-        'https://yourstore-1469f-default-rtdb.firebaseio.com/products.json');
+        'https://yourstore-1469f-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     try {
       final response = await http.post(
         url,
@@ -81,7 +89,6 @@ class Products with ChangeNotifier {
           'title': product.title,
           'description': product.description,
           'price': product.price,
-          'isFavorite': product.isFavorite,
           'imgUrl': product.imageUrl,
         }),
       );
@@ -117,7 +124,7 @@ class Products with ChangeNotifier {
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
     if (prodIndex >= 0) {
       final url = Uri.parse(
-          'https://yourstore-1469f-default-rtdb.firebaseio.com/products/$id.json');
+          'https://yourstore-1469f-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
       await http.patch(url,
           body: json.encode({
             'title': newProduct.title,
@@ -133,7 +140,7 @@ class Products with ChangeNotifier {
 
   void deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://yourstore-1469f-default-rtdb.firebaseio.com/products/$id.json');
+        'https://yourstore-1469f-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
     final exisitingProductIndex = _items.indexWhere((prod) => prod.id == id);
     var exisitingProduct = _items[exisitingProductIndex];
     _items.removeAt(exisitingProductIndex);
